@@ -5,8 +5,8 @@
 class TodoPage {
   constructor(page) {
     this.page = page;
-    this.nameInput = page.getByPlaceholder('Enter item name');
-    this.addButton = page.getByRole('button', { name: 'Add Item' });
+    this.nameInput = page.getByPlaceholder('Enter task name');
+    this.addButton = page.getByRole('button', { name: 'Add Task' });
     this.itemList = page.locator('ul');
   }
 

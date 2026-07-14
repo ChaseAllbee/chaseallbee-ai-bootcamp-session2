@@ -12,8 +12,8 @@ const server = setupServer(
     return res(
       ctx.status(200),
       ctx.json([
-        { id: 1, name: 'Test Item 1', created_at: '2023-01-01T00:00:00.000Z' },
-        { id: 2, name: 'Test Item 2', created_at: '2023-01-02T00:00:00.000Z' },
+        { id: 1, name: 'Test Item 1', due_date: '2026-08-01', completed: 0, created_at: '2023-01-01T00:00:00.000Z' },
+        { id: 2, name: 'Test Item 2', due_date: null, completed: 0, created_at: '2023-01-02T00:00:00.000Z' },
       ])
     );
   }),
@@ -34,6 +34,8 @@ const server = setupServer(
       ctx.json({
         id: 3,
         name,
+        due_date: null,
+        completed: 0,
         created_at: new Date().toISOString(),
       })
     );
@@ -82,12 +84,12 @@ describe('App Component', () => {
     });
     
     // Fill in the form and submit
-    const input = screen.getByPlaceholderText('Enter item name');
+    const input = screen.getByPlaceholderText('Enter task name');
     await act(async () => {
       await user.type(input, 'New Test Item');
     });
     
-    const submitButton = screen.getByText('Add Item');
+    const submitButton = screen.getByRole('button', { name: 'Add Task' });
     await act(async () => {
       await user.click(submitButton);
     });
@@ -130,7 +132,7 @@ describe('App Component', () => {
     
     // Wait for empty state message
     await waitFor(() => {
-      expect(screen.getByText('No items found. Add some!')).toBeInTheDocument();
+      expect(screen.getByText('No active tasks. Add one above!')).toBeInTheDocument();
     });
   });
 });
