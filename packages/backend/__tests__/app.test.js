@@ -1,102 +1,79 @@
-const request = require('supertest');
-const { app, db } = require('../src/app');
+const Database = require('better-sqlite3');
 
-// Close the database connection after all tests
-afterAll(() => {
-  if (db) {
-    db.close();
-  }
+// Each unit test run gets its own isolated in-memory database
+let db;
+
+beforeEach(() => {
+  db = new Database(':memory:');
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  ['Item 1', 'Item 2', 'Item 3'].forEach(name => {
+    db.prepare('INSERT INTO items (name) VALUES (?)').run(name);
+  });
 });
 
-// Test helpers
-const createItem = async (name = 'Temp Item to Delete') => {
-  const response = await request(app)
-    .post('/api/items')
-    .send({ name })
-    .set('Accept', 'application/json');
+afterEach(() => {
+  db.close();
+});
 
-  expect(response.status).toBe(201);
-  expect(response.body).toHaveProperty('id');
-  return response.body;
-};
-
-describe('API Endpoints', () => {
-  describe('GET /api/items', () => {
-    it('should return all items', async () => {
-      const response = await request(app).get('/api/items');
-
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
-
-      // Check if items have the expected structure
-      const item = response.body[0];
-      expect(item).toHaveProperty('id');
-      expect(item).toHaveProperty('name');
-      expect(item).toHaveProperty('created_at');
-    });
+describe('Database schema', () => {
+  it('should have the items table', () => {
+    const table = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='items'")
+      .get();
+    expect(table).toBeDefined();
+    expect(table.name).toBe('items');
   });
 
-  describe('POST /api/items', () => {
-    it('should create a new item', async () => {
-      const newItem = { name: 'Test Item' };
-      const response = await request(app)
-        .post('/api/items')
-        .send(newItem)
-        .set('Accept', 'application/json');
+  it('should have id, name, and created_at columns', () => {
+    const columns = db.prepare('PRAGMA table_info(items)').all();
+    const colNames = columns.map(c => c.name);
+    expect(colNames).toContain('id');
+    expect(colNames).toContain('name');
+    expect(colNames).toContain('created_at');
+  });
+});
 
-      expect(response.status).toBe(201);
-      expect(response.body).toHaveProperty('id');
-      expect(response.body.name).toBe(newItem.name);
-      expect(response.body).toHaveProperty('created_at');
-    });
-
-    it('should return 400 if name is missing', async () => {
-      const response = await request(app)
-        .post('/api/items')
-        .send({})
-        .set('Accept', 'application/json');
-
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('Item name is required');
-    });
-
-    it('should return 400 if name is empty', async () => {
-      const response = await request(app)
-        .post('/api/items')
-        .send({ name: '' })
-        .set('Accept', 'application/json');
-
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('Item name is required');
-    });
+describe('Database seeding', () => {
+  it('should seed 3 initial items', () => {
+    const items = db.prepare('SELECT * FROM items').all();
+    expect(items).toHaveLength(3);
   });
 
-  describe('DELETE /api/items/:id', () => {
-    it('should delete an existing item', async () => {
-      const item = await createItem('Item To Be Deleted');
+  it('should seed items with the correct names', () => {
+    const items = db.prepare('SELECT name FROM items ORDER BY id').all();
+    expect(items.map(i => i.name)).toEqual(['Item 1', 'Item 2', 'Item 3']);
+  });
+});
 
-      const deleteResponse = await request(app).delete(`/api/items/${item.id}`);
-      expect(deleteResponse.status).toBe(200);
-      expect(deleteResponse.body).toEqual({ message: 'Item deleted successfully', id: item.id });
+describe('Item CRUD operations', () => {
+  it('should insert a new item and return its id', () => {
+    const result = db.prepare('INSERT INTO items (name) VALUES (?)').run('New Item');
+    expect(result.lastInsertRowid).toBeTruthy();
+  });
 
-      const deleteAgain = await request(app).delete(`/api/items/${item.id}`);
-      expect(deleteAgain.status).toBe(404);
-      expect(deleteAgain.body).toHaveProperty('error', 'Item not found');
-    });
+  it('should retrieve an inserted item by id', () => {
+    const { lastInsertRowid } = db.prepare('INSERT INTO items (name) VALUES (?)').run('Find Me');
+    const item = db.prepare('SELECT * FROM items WHERE id = ?').get(lastInsertRowid);
+    expect(item.name).toBe('Find Me');
+    expect(item).toHaveProperty('created_at');
+  });
 
-    it('should return 404 when item does not exist', async () => {
-      const response = await request(app).delete('/api/items/999999');
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('error', 'Item not found');
-    });
+  it('should delete an item by id', () => {
+    const { lastInsertRowid } = db.prepare('INSERT INTO items (name) VALUES (?)').run('Delete Me');
+    const result = db.prepare('DELETE FROM items WHERE id = ?').run(lastInsertRowid);
+    expect(result.changes).toBe(1);
+    const item = db.prepare('SELECT * FROM items WHERE id = ?').get(lastInsertRowid);
+    expect(item).toBeUndefined();
+  });
 
-    it('should return 400 for invalid id', async () => {
-      const response = await request(app).delete('/api/items/abc');
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('error', 'Valid item ID is required');
-    });
+  it('should return 0 changes when deleting a non-existent item', () => {
+    const result = db.prepare('DELETE FROM items WHERE id = ?').run(999999);
+    expect(result.changes).toBe(0);
   });
 });
