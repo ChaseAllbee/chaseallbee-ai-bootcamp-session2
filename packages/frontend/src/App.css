@@ -1,94 +1,145 @@
 .App {
-  text-align: center;
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 32px 24px;
 }
 
 .App-header {
-  background-color: #282c34;
-  padding: 20px;
-  color: white;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  padding: 32px 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .App-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1a1a2e;
+}
+
+.App-header p {
   margin: 0;
-  font-size: 1.8rem;
+  color: #64748b;
+  font-size: 0.95rem;
 }
 
 main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 section {
-  background-color: #f5f5f5;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+section h2 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .add-item-section form {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
 }
 
 input {
   flex: 1;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1a1a2e;
+  background-color: #f8fafc;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  background-color: #ffffff;
 }
 
 button {
-  padding: 8px 16px;
-  background-color: #61dafb;
-  color: #282c34;
+  padding: 10px 20px;
+  background-color: #6366f1;
+  color: #ffffff;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
 }
 
 button:hover {
-  background-color: #21a1c9;
+  background-color: #4f46e5;
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 ul {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
 li {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
   text-align: left;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
 li:last-child {
   border-bottom: none;
+  padding-bottom: 0;
+}
+
+li:first-child {
+  padding-top: 0;
 }
 
 .delete-btn {
-  background-color: #f44336;
-  color: white;
+  flex-shrink: 0;
   padding: 6px 12px;
+  background-color: transparent;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
   font-size: 0.8rem;
-  margin-left: 10px;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .delete-btn:hover {
-  background-color: #d32f2f;
+  background-color: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
 }
 
 .error {
-  color: #d32f2f;
-  font-weight: bold;
+  margin: 0;
+  padding: 12px 16px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.9rem;
 }
