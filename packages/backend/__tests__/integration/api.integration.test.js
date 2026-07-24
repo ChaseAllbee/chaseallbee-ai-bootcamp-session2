@@ -37,8 +37,8 @@ describe('API Integration Tests', () => {
       const itemId = createResponse.body.id;
 
       const deleteResponse = await request(app).delete(`/api/items/${itemId}`);
-      expect(deleteResponse.status).toBe(200);
-      expect(deleteResponse.body).toHaveProperty('message', 'Item deleted successfully');
+      expect(deleteResponse.status).toBe(204);
+      expect(deleteResponse.body).toEqual({});
 
       const getResponse = await request(app).get('/api/items');
       expect(getResponse.status).toBe(200);

@@ -224,14 +224,14 @@ function App() {
 
       <main>
         <section className="add-item-section">
-          <h2>Add Task</h2>
+          <h2>Create Item</h2>
           <form onSubmit={handleSubmit}>
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Enter task name"
-              aria-label="Task name"
+              placeholder="Enter item name"
+              aria-label="Item name"
             />
             <input
               type="date"
@@ -239,7 +239,7 @@ function App() {
               onChange={(e) => setNewDueDate(e.target.value)}
               aria-label="Due date"
             />
-            <button type="submit">Add Task</button>
+            <button type="submit">Add Item</button>
           </form>
         </section>
 
