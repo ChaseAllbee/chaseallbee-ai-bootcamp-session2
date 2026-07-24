@@ -84,12 +84,12 @@ describe('App Component', () => {
     });
     
     // Fill in the form and submit
-    const input = screen.getByPlaceholderText('Enter task name');
+    const input = screen.getByPlaceholderText('Enter item name');
     await act(async () => {
       await user.type(input, 'New Test Item');
     });
     
-    const submitButton = screen.getByRole('button', { name: 'Add Task' });
+    const submitButton = screen.getByRole('button', { name: 'Add Item' });
     await act(async () => {
       await user.click(submitButton);
     });
